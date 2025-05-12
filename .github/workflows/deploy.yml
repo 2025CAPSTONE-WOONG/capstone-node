@@ -20,9 +20,16 @@ jobs:
         username: ubuntu
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
-          cd /capstone-node
+          if [ ! -d "/home/ubuntu/capstone-node" ]; then
+            mkdir -p /home/ubuntu/capstone-node
+            git clone https://github.com/2025CAPSTONE-WOONG/capstone-node.git /home/ubuntu/capstone-node
+          fi
+          
+          cd /home/ubuntu/capstone-node
           git pull origin main
+          
           npm install
+
           pm2 describe capstone-node > /dev/null || pm2 start src/index.js --name capstone-node
           pm2 restart capstone-node
-          pm2 save 
+          pm2 save
