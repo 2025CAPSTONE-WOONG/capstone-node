@@ -20,7 +20,7 @@ jobs:
         username: ubuntu
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
-          cd /home/ubuntu/capstone-node
+          cd /capstone-node
           git pull origin main
           npm install
           pm2 describe capstone-node > /dev/null || pm2 start src/index.js --name capstone-node
