@@ -1,0 +1,64 @@
+name: Deploy to AWS Lightsail
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2
+        
+    - name: Deploy to Lightsail
+      run: |
+        # Install AWS CLI
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
+        
+        # Deploy to Lightsail instance
+        aws lightsail create-container-service-deployment \
+          --service-name your-container-service-name \
+          --containers '{
+            "app": {
+              "image": ":latest",
+              "ports": {
+                "3000": "HTTP"
+              },
+              "environment": {
+                "NODE_ENV": "production"
+              }
+            }
+          }' \
+          --public-endpoint '{
+            "containerName": "app",
+            "containerPort": 3000,
+            "healthCheck": {
+              "healthyThreshold": 2,
+              "unhealthyThreshold": 2,
+              "timeoutSeconds": 2,
+              "intervalSeconds": 5,
+              "path": "/",
+              "successCodes": "200-499"
+            }
+          }' 
