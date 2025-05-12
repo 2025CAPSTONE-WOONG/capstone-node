@@ -7,6 +7,8 @@ const healthRoutes = require('./health/route/health.route');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// CORS configuration
+const cors = require('cors');
 app.use(cors());
 app.use(express.json());
 
