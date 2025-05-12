@@ -20,16 +20,24 @@ jobs:
         username: ubuntu
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
-          if [ ! -d "/home/ubuntu/capstone-node" ]; then
-            mkdir -p /home/ubuntu/capstone-node
+          # Git이 없으면 clone, 있으면 pull
+          if [ ! -d "/home/ubuntu/capstone-node/.git" ]; then
+            rm -rf /home/ubuntu/capstone-node
             git clone https://github.com/2025CAPSTONE-WOONG/capstone-node.git /home/ubuntu/capstone-node
           fi
-          
+
           cd /home/ubuntu/capstone-node
           git pull origin main
-          
-          npm install
 
+          # package.json 체크 후 설치
+          if [ -f "package.json" ]; then
+            npm install
+          else
+            echo "package.json not found!"
+            exit 1
+          fi
+
+          # PM2 실행
           pm2 describe capstone-node > /dev/null || pm2 start src/index.js --name capstone-node
           pm2 restart capstone-node
           pm2 save
