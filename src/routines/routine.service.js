@@ -1,5 +1,5 @@
-const routineModel = require('../model/routine.model');
-const { successResponse, errorResponse } = require('../../utils/response');
+const routineModel = require('./routine.model');
+const { successResponse, errorResponse } = require('../utils/response');
 
 
 const confirmRoutine = async (req, res) => {
