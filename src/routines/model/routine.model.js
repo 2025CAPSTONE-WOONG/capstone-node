@@ -1,16 +1,32 @@
 const db = require('../../config/database');
 
-const create = async (routineData) => {
-  const { title, description, start_time, end_time, status } = routineData;
+
+const confirmRoutine = async (userId, routineData) => {
+  const { title, description, startTime } = routineData;
+  
+  // end_time은 start_time으로부터 30분 후로 설정
+  const start_time = new Date(startTime);
+  const end_time = new Date(start_time.getTime() + 30 * 60000); // 30분 추가
+  
   const query = `
     INSERT INTO routines (user_id, title, description, start_time, end_time, status)
-    VALUES (1, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, 'active')
   `;
   
-  const [result] = await db.execute(query, [title, description, start_time, end_time, status || 'active']);
-  return result.insertId;
+  const [result] = await db.execute(query, [
+    userId,
+    title,
+    description,
+    start_time,
+    end_time
+  ]);
+
+  return {
+    routineId: result.insertId,
+    status: 'active'
+  };
 };
 
 module.exports = {
-  create
+  confirmRoutine
 }; 
