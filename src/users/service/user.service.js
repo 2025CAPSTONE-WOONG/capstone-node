@@ -13,7 +13,7 @@ const googleLogin = async (req, res) => {
     });
 
     const payload = ticket.getPayload();
-    const { email, name, picture } = payload;
+    const { email, name } = payload;
 
     // Check if user exists
     let user = await userModel.findByEmail(email);
@@ -23,8 +23,6 @@ const googleLogin = async (req, res) => {
       user = await userModel.create({
         email,
         name,
-        profilePicture: picture,
-        provider: 'google'
       });
     }
 
