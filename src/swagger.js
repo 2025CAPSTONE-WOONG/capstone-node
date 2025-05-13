@@ -18,6 +18,18 @@ const options = {
         description: 'Production server'
       }
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    },
+    security: [{
+      bearerAuth: []
+    }]
   },
   apis: ['./src/**/*.js'], // 모든 route/service/model 파일에서 swagger 주석을 읽음
 };
