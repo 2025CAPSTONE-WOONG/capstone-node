@@ -25,6 +25,26 @@ const confirmRoutine = async (req, res) => {
   }
 };
 
+const getActiveRoutines = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const routines = await routineModel.getActiveRoutines(userId);
+    
+    return successResponse(res, 200, '진행중인 루틴을 조회했습니다.', {
+      routines: routines.map(routine => ({
+        id: routine.id,
+        title: routine.title,
+        startTime: routine.startTime,
+        description: routine.description
+      }))
+    });
+  } catch (error) {
+    console.error('Get active routines error:', error);
+    return errorResponse(res, 500, '진행중인 루틴 조회 중 오류가 발생했습니다.', { error: error.message });
+  }
+};
+
 module.exports = {
-  confirmRoutine
+  confirmRoutine,
+  getActiveRoutines
 }; 

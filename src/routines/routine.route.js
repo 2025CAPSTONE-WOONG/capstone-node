@@ -61,4 +61,61 @@ const auth = require('../middleware/auth');
  */
 router.post('/confirm', auth, routineService.confirmRoutine);
 
+/**
+ * @swagger
+ * /routines:
+ *   get:
+ *     summary: 진행중인 루틴 조회
+ *     description: 사용자의 진행중인 루틴 목록을 조회합니다.
+ *     tags: [Routines]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active]
+ *         required: true
+ *         description: 루틴 상태 (active만 지원)
+ *     responses:
+ *       200:
+ *         description: 진행중인 루틴 목록을 성공적으로 조회했습니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     routines:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             example: 1
+ *                           title:
+ *                             type: string
+ *                             example: "30분 면접 준비"
+ *                           startTime:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-05-01T14:00:00"
+ *                           description:
+ *                             type: string
+ *                             example: "예상 질문 복습 및 자기소개 연습"
+ *       401:
+ *         description: 인증되지 않은 요청입니다.
+ *       500:
+ *         description: 서버 오류가 발생했습니다.
+ */
+router.get('/', auth, routineService.getActiveRoutines);
+
 module.exports = router; 

@@ -27,6 +27,23 @@ const confirmRoutine = async (userId, routineData) => {
   };
 };
 
+const getActiveRoutines = async (userId) => {
+  const query = `
+    SELECT 
+      id,
+      title,
+      description,
+      start_time as startTime
+    FROM routines 
+    WHERE user_id = ? AND status = 'active'
+    ORDER BY start_time ASC
+  `;
+
+  const [rows] = await db.execute(query, [userId]);
+  return rows;
+};
+
 module.exports = {
-  confirmRoutine
+  confirmRoutine,
+  getActiveRoutines
 }; 
