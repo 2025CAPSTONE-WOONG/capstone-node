@@ -11,11 +11,23 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // CORS configuration
-app.use(cors());
+app.use(cors({
+  origin: '*',  // 모든 도메인에서의 접근 허용
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  swaggerOptions: {
+    persistAuthorization: true,
+    docExpansion: 'none',
+    filter: true,
+    showCommonExtensions: true,
+    tryItOutEnabled: true
+  }
+}));
 
 // Routes
 app.use('/users', userRoutes);
