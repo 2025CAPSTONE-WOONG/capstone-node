@@ -83,13 +83,22 @@ const getProfile = async (userId) => {
 };
 
 const findOrCreateGoogleUser = async (email) => {
+  console.log('[findOrCreateGoogleUser] Starting process for email:', email);
+  
   // 먼저 이메일로 사용자 찾기
+  console.log('[findOrCreateGoogleUser] Searching for existing user');
   const existingUser = await findByEmail(email);
   
   if (existingUser) {
+    console.log('[findOrCreateGoogleUser] Existing user found:', JSON.stringify({
+      userId: existingUser.id,
+      email: existingUser.email,
+      nickname: existingUser.nickname
+    }, null, 2));
     return existingUser;
   }
 
+  console.log('[findOrCreateGoogleUser] No existing user found, creating new user');
   // 새 사용자 생성
   const query = `
     INSERT INTO users (email, nickname)
@@ -97,13 +106,26 @@ const findOrCreateGoogleUser = async (email) => {
   `;
   
   const nickname = email.split('@')[0]; // 이메일에서 닉네임 생성
-  const [result] = await db.execute(query, [email, nickname]);
+  console.log('[findOrCreateGoogleUser] Generated nickname:', nickname);
   
-  return {
-    id: result.insertId,
-    email,
-    nickname
-  };
+  try {
+    const [result] = await db.execute(query, [email, nickname]);
+    console.log('[findOrCreateGoogleUser] New user created successfully:', JSON.stringify({
+      id: result.insertId,
+      email,
+      nickname
+    }, null, 2));
+    
+    return {
+      id: result.insertId,
+      email,
+      nickname
+    };
+  } catch (error) {
+    console.error('[findOrCreateGoogleUser] Error creating new user:', error);
+    console.error('[findOrCreateGoogleUser] Error stack:', error.stack);
+    throw error;
+  }
 };
 
 module.exports = {

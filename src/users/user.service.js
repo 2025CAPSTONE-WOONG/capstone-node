@@ -6,18 +6,31 @@ const { successResponse, errorResponse } = require('../utils/response');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const googleLogin = async (req, res) => {
+  console.log('[Google Login] Starting google login process');
+  console.log('[Google Login] Request body:', JSON.stringify(req.body, null, 2));
+  
   try {
     // 프론트엔드에서 credential을 전송하지 않은 경우 처리
     if (!req.body.credential) {
-      console.log('Received body:', req.body);
+      console.log('[Google Login] Error: Missing credential in request body');
+      console.log('[Google Login] Received body:', JSON.stringify(req.body, null, 2));
       return errorResponse(res, 400, '구글 인증 정보가 없습니다.', {
         field: 'credential',
         message: 'Google credential is required'
       });
     }
 
+    console.log('[Google Login] Decoding Google credential token');
     const decoded = jwt.decode(req.body.credential);
+    console.log('[Google Login] Decoded token:', JSON.stringify({
+      email: decoded?.email,
+      sub: decoded?.sub,
+      name: decoded?.name,
+      picture: decoded?.picture
+    }, null, 2));
+
     if (!decoded || !decoded.email) {
+      console.log('[Google Login] Error: Invalid decoded token structure');
       return errorResponse(res, 400, '잘못된 구글 인증 정보입니다.', {
         field: 'credential',
         message: 'Invalid Google credential'
@@ -25,17 +38,26 @@ const googleLogin = async (req, res) => {
     }
 
     const { email } = decoded;
+    console.log('[Google Login] Attempting to find or create user with email:', email);
 
     // 사용자 찾기 또는 생성
     const user = await userModel.findOrCreateGoogleUser(email);
+    console.log('[Google Login] User found/created:', JSON.stringify({
+      userId: user.id,
+      email: user.email,
+      nickname: user.nickname
+    }, null, 2));
 
     // JWT 토큰 생성
+    console.log('[Google Login] Generating JWT token');
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
+    console.log('[Google Login] JWT token generated successfully');
 
+    console.log('[Google Login] Login process completed successfully');
     return successResponse(res, 200, '구글 로그인이 완료되었습니다.', {
       token,
       user: {
@@ -45,8 +67,12 @@ const googleLogin = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Google login error:', error);
-    return errorResponse(res, 500, '구글 인증에 실패했습니다.', { error: error.message });
+    console.error('[Google Login] Critical error occurred:', error);
+    console.error('[Google Login] Error stack:', error.stack);
+    return errorResponse(res, 500, '구글 인증에 실패했습니다.', { 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 
