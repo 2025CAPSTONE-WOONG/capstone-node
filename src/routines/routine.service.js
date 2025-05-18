@@ -35,7 +35,8 @@ const getActiveRoutines = async (req, res) => {
         id: routine.id,
         title: routine.title,
         startTime: routine.startTime,
-        description: routine.description
+        description: routine.description,
+        goal: routine.goal
       }))
     });
   } catch (error) {

@@ -4,6 +4,7 @@ const cors = require('cors');
 const userRoutes = require('./users/user.route');
 const healthRoutes = require('./health/health.route');
 const routineRoutes = require('./routines/routine.route');
+const biometricsRoutes = require('./biometrics/biometrics.route');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 
@@ -33,6 +34,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 app.use('/users', userRoutes);
 app.use('/health', healthRoutes);
 app.use('/routines', routineRoutes);
+app.use('/data', biometricsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

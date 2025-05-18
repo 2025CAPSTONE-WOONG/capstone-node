@@ -2,7 +2,6 @@ CREATE TABLE users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nickname VARCHAR(50) NOT NULL,
     major VARCHAR(100),
-    goal VARCHAR(100),
     emotion VARCHAR(50),
     sleep_score INT DEFAULT NULL,
     stress_level INT DEFAULT NULL,
@@ -19,14 +18,12 @@ CREATE TABLE users (
 CREATE TABLE biometrics (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    device_id VARCHAR(100) NOT NULL,
-    heart_rate INT,
-    hrv INT,
-    movement ENUM('still', 'active'),
-    timestamp TIMESTAMP,
-    user_agent VARCHAR(100),
+    date DATE NOT NULL,
+    time TIME NOT NULL,
+    value DECIMAL(10, 3) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
 
 -- ===========================
 -- 📌 루틴 (Routine)
@@ -36,6 +33,7 @@ CREATE TABLE routines (
     user_id BIGINT NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
+    goal VARCHAR(100),
     start_time TIMESTAMP,
     end_time TIMESTAMP,
     status ENUM('active', 'completed', 'missed') DEFAULT 'active',

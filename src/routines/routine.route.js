@@ -29,6 +29,9 @@ const auth = require('../middleware/auth');
  *               description:
  *                 type: string
  *                 example: "면접 예상 질문을 정리하고 답변 연습"
+ *               goal:
+ *                 type: string
+ *                 example: "면접 준비 완료"
  *               startTime:
  *                 type: string
  *                 format: date-time
@@ -111,6 +114,9 @@ router.post('/confirm', auth, routineService.confirmRoutine);
  *                           description:
  *                             type: string
  *                             example: "예상 질문 복습 및 자기소개 연습"
+ *                           goal:
+ *                             type: string
+ *                             example: "면접 준비 완료"
  *       401:
  *         description: 인증되지 않은 요청입니다.
  *       500:

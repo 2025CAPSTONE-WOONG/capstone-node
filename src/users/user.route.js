@@ -59,7 +59,6 @@ router.post('/google', userService.googleLogin);
  *             required:
  *               - nickname
  *               - major
- *               - goal
  *               - emotion
  *               - biometric
  *             properties:
@@ -69,9 +68,6 @@ router.post('/google', userService.googleLogin);
  *               major:
  *                 type: string
  *                 example: "컴퓨터공학"
- *               goal:
- *                 type: string
- *                 example: "취업 준비"
  *               emotion:
  *                 type: string
  *                 example: "긴장됨"

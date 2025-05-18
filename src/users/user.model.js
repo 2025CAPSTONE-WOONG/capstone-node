@@ -24,10 +24,10 @@ const create = async (userData) => {
 };
 
 const update = async (id, userData) => {
-  const { nickname, major, goal, emotion } = userData;
+  const { nickname, major, emotion } = userData;
   const [result] = await db.query(
-    'UPDATE users SET nickname = ?, major = ?, goal = ?, emotion = ? WHERE id = ?',
-    [nickname, major, goal, emotion, id]
+    'UPDATE users SET nickname = ?, major = ?, emotion = ? WHERE id = ?',
+    [nickname, major, emotion, id]
   );
   return result;
 };
@@ -42,14 +42,13 @@ const verifyPassword = async (password, hashedPassword) => {
 };
 
 const updateProfile = async (userId, profileData) => {
-  const { nickname, major, goal, emotion, biometric } = profileData;
+  const { nickname, major, emotion, biometric } = profileData;
   
   const query = `
     UPDATE users 
     SET 
       nickname = ?,
       major = ?,
-      goal = ?,
       emotion = ?,
       sleep_score = ?,
       stress_level = ?,
@@ -61,7 +60,6 @@ const updateProfile = async (userId, profileData) => {
   const [result] = await db.execute(query, [
     nickname,
     major,
-    goal,
     emotion,
     biometric.sleepScore,
     biometric.stressLevel,
