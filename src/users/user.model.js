@@ -50,8 +50,6 @@ const updateProfile = async (userId, profileData) => {
       nickname = ?,
       major = ?,
       emotion = ?,
-      sleep_score = ?,
-      stress_level = ?,
       tutorial_completed = true,
       updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
@@ -84,6 +82,30 @@ const getProfile = async (userId) => {
   return rows[0];
 };
 
+const findOrCreateGoogleUser = async (email) => {
+  // 먼저 이메일로 사용자 찾기
+  const existingUser = await findByEmail(email);
+  
+  if (existingUser) {
+    return existingUser;
+  }
+
+  // 새 사용자 생성
+  const query = `
+    INSERT INTO users (email, nickname)
+    VALUES (?, ?)
+  `;
+  
+  const nickname = email.split('@')[0]; // 이메일에서 닉네임 생성
+  const [result] = await db.execute(query, [email, nickname]);
+  
+  return {
+    id: result.insertId,
+    email,
+    nickname
+  };
+};
+
 module.exports = {
   findByEmail,
   create,
@@ -91,5 +113,6 @@ module.exports = {
   findById,
   verifyPassword,
   updateProfile,
-  getProfile
+  getProfile,
+  findOrCreateGoogleUser
 }; 

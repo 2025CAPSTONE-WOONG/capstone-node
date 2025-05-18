@@ -7,45 +7,46 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const googleLogin = async (req, res) => {
   try {
-    const { token } = req.body;
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID
-    });
-
-    const payload = ticket.getPayload();
-    const { email, name } = payload;
-
-    // Check if user exists
-    let user = await userModel.findByEmail(email);
-    
-    if (!user) {
-      // Create new user if doesn't exist
-      user = await userModel.create({
-        email,
-        name,
+    // 프론트엔드에서 credential을 전송하지 않은 경우 처리
+    if (!req.body.credential) {
+      console.log('Received body:', req.body);
+      return errorResponse(res, 400, '구글 인증 정보가 없습니다.', {
+        field: 'credential',
+        message: 'Google credential is required'
       });
     }
 
-    // Generate JWT token
-    const jwtToken = jwt.sign(
+    const decoded = jwt.decode(req.body.credential);
+    if (!decoded || !decoded.email) {
+      return errorResponse(res, 400, '잘못된 구글 인증 정보입니다.', {
+        field: 'credential',
+        message: 'Invalid Google credential'
+      });
+    }
+
+    const { email } = decoded;
+
+    // 사용자 찾기 또는 생성
+    const user = await userModel.findOrCreateGoogleUser(email);
+
+    // JWT 토큰 생성
+    const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
-    return successResponse(res, 200, 'Google login successful', {
-      token: jwtToken,
+    return successResponse(res, 200, '구글 로그인이 완료되었습니다.', {
+      token,
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
-        profilePicture: user.profilePicture
+        nickname: user.nickname
       }
     });
   } catch (error) {
     console.error('Google login error:', error);
-    return errorResponse(res, 500, 'Google authentication failed', { error: error.message });
+    return errorResponse(res, 500, '구글 인증에 실패했습니다.', { error: error.message });
   }
 };
 
