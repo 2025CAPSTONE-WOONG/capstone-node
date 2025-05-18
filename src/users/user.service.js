@@ -11,14 +11,14 @@ const googleLogin = async (req, res) => {
   
   try {
     // 프론트엔드에서 credential을 전송하지 않은 경우 처리
-    // if (!req.body.credential) {
-    //   console.log('[Google Login] Error: Missing credential in request body');
-    //   console.log('[Google Login] Received body:', JSON.stringify(req.body, null, 2));
-    //   return errorResponse(res, 400, '구글 인증 정보가 없습니다.', {
-    //     field: 'credential',
-    //     message: 'Google credential is required'
-    //   });
-    // }
+    if (!req.body.credential) {
+      console.log('[Google Login] Error: Missing credential in request body');
+      console.log('[Google Login] Received body:', JSON.stringify(req.body, null, 2));
+      return errorResponse(res, 400, '구글 인증 정보가 없습니다.', {
+        field: 'credential',
+        message: 'Google credential is required'
+      });
+    }
 
     console.log('[Google Login] Decoding Google credential token');
     const decoded = jwt.decode(req.body.credential);
