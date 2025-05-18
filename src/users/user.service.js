@@ -55,7 +55,7 @@ const googleLogin = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
-    console.log('[Google Login] JWT token generated successfully');
+    console.log('[Google Login] JWT token generated successfully', token);
 
     console.log('[Google Login] Login process completed successfully');
     return successResponse(res, 200, '구글 로그인이 완료되었습니다.', {
