@@ -42,12 +42,17 @@ const auth = require('../middleware/auth');
  *         description: Server error
  */
 router.post('/receive', auth, async (req, res) => {
+  console.log('[Biometrics] Starting to process biometric data');
+  console.log('[Biometrics] User ID:', req.user.userId);
+  
   try {
     console.log('=== Biometrics Receive API Called ===');
     console.log('Request Body:', JSON.stringify(req.body, null, 2));
     console.log('User ID:', req.user.userId);
 
     const { caloriesBurnedData } = req.body;
+    console.log('[Biometrics] Received data:', JSON.stringify(caloriesBurnedData, null, 2));
+    
     const userId = req.user.userId;
 
     if (!caloriesBurnedData || !Array.isArray(caloriesBurnedData)) {
