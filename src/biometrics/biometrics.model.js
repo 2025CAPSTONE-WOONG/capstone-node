@@ -1,39 +1,18 @@
 const db = require('../config/database');
 
-const insertBiometricData = async (userId, biometricData) => {
-  const {
-    date,
-    time,
-    step_count,
-    calories_burned,
-    distance_walked,
-    total_sleep_minutes,
-    deep_sleep_minutes,
-    rem_sleep_minutes,
-    light_sleep_minutes,
-    heart_rate
-  } = biometricData;
-
+const insertBiometricData = async (userId, dataType, date, time, value) => {
   const query = `
     INSERT INTO biometrics (
-      user_id, date, time, step_count, calories_burned, 
-      distance_walked, total_sleep_minutes, deep_sleep_minutes,
-      rem_sleep_minutes, light_sleep_minutes, heart_rate
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      user_id, data_type, date, time, value
+    ) VALUES (?, ?, ?, ?, ?)
   `;
 
   const [result] = await db.execute(query, [
     userId,
+    dataType,
     date,
     time,
-    step_count || null,
-    calories_burned || null,
-    distance_walked || null,
-    total_sleep_minutes || null,
-    deep_sleep_minutes || null,
-    rem_sleep_minutes || null,
-    light_sleep_minutes || null,
-    heart_rate || null
+    value
   ]);
 
   return result;
@@ -43,19 +22,14 @@ const getBiometricsData = async (userId) => {
   const query = `
     SELECT 
       id,
+      data_type,
       date,
       time,
-      step_count,
-      calories_burned,
-      distance_walked,
-      total_sleep_minutes,
-      deep_sleep_minutes,
-      rem_sleep_minutes,
-      light_sleep_minutes,
-      heart_rate,
+      value,
       created_at
     FROM biometrics 
     WHERE user_id = ?
+    AND date >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
     ORDER BY date DESC, time DESC
   `;
 

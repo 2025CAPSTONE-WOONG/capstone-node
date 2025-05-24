@@ -8,7 +8,7 @@ const biometricsService = require('./biometrics.service');
  * /data:
  *   get:
  *     summary: Get user's biometrics data
- *     description: Retrieve all biometrics data for the authenticated user
+ *     description: Retrieve all biometrics data for the authenticated user from the last 24 hours
  *     tags: [Biometrics]
  *     security:
  *       - bearerAuth: []
@@ -34,36 +34,17 @@ const biometricsService = require('./biometrics.service');
  *                         properties:
  *                           id:
  *                             type: integer
+ *                           data_type:
+ *                             type: string
+ *                             enum: [step, calories, distance, deep_sleep, light_sleep, rem_sleep, heart_rate]
  *                           date:
  *                             type: string
  *                             format: date
  *                           time:
  *                             type: string
  *                             format: time
- *                           step_count:
+ *                           value:
  *                             type: string
- *                             description: Encrypted step count value
- *                           calories_burned:
- *                             type: string
- *                             description: Encrypted calories burned value
- *                           distance_walked:
- *                             type: string
- *                             description: Encrypted distance walked value
- *                           total_sleep_minutes:
- *                             type: string
- *                             description: Encrypted total sleep minutes value
- *                           deep_sleep_minutes:
- *                             type: string
- *                             description: Encrypted deep sleep minutes value
- *                           rem_sleep_minutes:
- *                             type: string
- *                             description: Encrypted REM sleep minutes value
- *                           light_sleep_minutes:
- *                             type: string
- *                             description: Encrypted light sleep minutes value
- *                           heart_rate:
- *                             type: string
- *                             description: Encrypted heart rate value
  *                           created_at:
  *                             type: string
  *                             format: date-time
@@ -79,7 +60,7 @@ router.get('/', auth, biometricsService.getBiometricsData);
  * /data/receive:
  *   post:
  *     summary: Receive biometric data
- *     description: Receive and store encrypted biometric data including steps, calories, sleep, and heart rate
+ *     description: Receive and store biometric data including steps, calories, sleep, and heart rate
  *     tags: [Biometrics]
  *     security:
  *       - bearerAuth: []
@@ -107,118 +88,30 @@ router.get('/', auth, biometricsService.getBiometricsData);
  *                       format: time
  *                     value:
  *                       type: string
- *                       description: Encrypted step count value
  *               caloriesBurnedData:
  *                 type: array
  *                 items:
- *                   type: object
- *                   required:
- *                     - date
- *                     - time
- *                     - value
- *                   properties:
- *                     date:
- *                       type: string
- *                       format: date
- *                     time:
- *                       type: string
- *                       format: time
- *                     value:
- *                       type: string
- *                       description: Encrypted calories burned value
+ *                   $ref: '#/components/schemas/BiometricDataPoint'
  *               distanceWalked:
  *                 type: array
  *                 items:
- *                   type: object
- *                   required:
- *                     - date
- *                     - time
- *                     - value
- *                   properties:
- *                     date:
- *                       type: string
- *                       format: date
- *                     time:
- *                       type: string
- *                       format: time
- *                     value:
- *                       type: string
- *                       description: Encrypted distance walked value
- *               heartRateData:
- *                 type: array
- *                 items:
- *                   type: object
- *                   required:
- *                     - date
- *                     - time
- *                     - value
- *                   properties:
- *                     date:
- *                       type: string
- *                       format: date
- *                     time:
- *                       type: string
- *                       format: time
- *                     value:
- *                       type: string
- *                       description: Encrypted heart rate value
- *               totalSleepMinutes:
- *                 type: string
- *                 description: Encrypted total sleep minutes value
+ *                   $ref: '#/components/schemas/BiometricDataPoint'
  *               deepSleepMinutes:
  *                 type: array
  *                 items:
- *                   type: object
- *                   required:
- *                     - date
- *                     - time
- *                     - value
- *                   properties:
- *                     date:
- *                       type: string
- *                       format: date
- *                     time:
- *                       type: string
- *                       format: time
- *                     value:
- *                       type: string
- *                       description: Encrypted deep sleep minutes value
- *               remSleepMinutes:
- *                 type: array
- *                 items:
- *                   type: object
- *                   required:
- *                     - date
- *                     - time
- *                     - value
- *                   properties:
- *                     date:
- *                       type: string
- *                       format: date
- *                     time:
- *                       type: string
- *                       format: time
- *                     value:
- *                       type: string
- *                       description: Encrypted REM sleep minutes value
+ *                   $ref: '#/components/schemas/BiometricDataPoint'
  *               lightSleepMinutes:
  *                 type: array
  *                 items:
- *                   type: object
- *                   required:
- *                     - date
- *                     - time
- *                     - value
- *                   properties:
- *                     date:
- *                       type: string
- *                       format: date
- *                     time:
- *                       type: string
- *                       format: time
- *                     value:
- *                       type: string
- *                       description: Encrypted light sleep minutes value
+ *                   $ref: '#/components/schemas/BiometricDataPoint'
+ *               remSleepMinutes:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/BiometricDataPoint'
+ *               heartRateData:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/BiometricDataPoint'
  *     responses:
  *       200:
  *         description: Data received successfully
@@ -230,5 +123,26 @@ router.get('/', auth, biometricsService.getBiometricsData);
  *         description: Server error
  */
 router.post('/receive', auth, biometricsService.processBiometricData);
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     BiometricDataPoint:
+ *       type: object
+ *       required:
+ *         - date
+ *         - time
+ *         - value
+ *       properties:
+ *         date:
+ *           type: string
+ *           format: date
+ *         time:
+ *           type: string
+ *           format: time
+ *         value:
+ *           type: string
+ */
 
 module.exports = router; 
