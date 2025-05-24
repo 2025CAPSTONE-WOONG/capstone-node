@@ -8,10 +8,19 @@ const biometricsService = require('./biometrics.service');
  * /data:
  *   get:
  *     summary: Get user's biometrics data
- *     description: Retrieve all biometrics data for the authenticated user from the last 24 hours
+ *     description: Retrieve all biometrics data for the authenticated user for the specified number of days
  *     tags: [Biometrics]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 30
+ *           default: 1
+ *         description: Number of days to retrieve data for (1-30 days)
  *     responses:
  *       200:
  *         description: Biometrics data retrieved successfully
@@ -48,6 +57,8 @@ const biometricsService = require('./biometrics.service');
  *                           created_at:
  *                             type: string
  *                             format: date-time
+ *       400:
+ *         description: Invalid days parameter
  *       401:
  *         description: Unauthorized
  *       500:

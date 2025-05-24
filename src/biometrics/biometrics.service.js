@@ -74,9 +74,19 @@ const getBiometricsData = async (req, res) => {
   
   try {
     const userId = req.user.userId;
-    console.log('[Biometrics] Fetching last 24 hours data for user:', userId);
+    const days = parseInt(req.query.days) || 1;
 
-    const biometricsData = await biometricsModel.getBiometricsData(userId);
+    // days 파라미터 유효성 검사
+    if (isNaN(days) || days < 1 || days > 30) {
+      return errorResponse(res, 400, 'Invalid days parameter', {
+        field: 'days',
+        message: 'Days must be a number between 1 and 30'
+      });
+    }
+
+    console.log(`[Biometrics] Fetching last ${days} days data for user:`, userId);
+
+    const biometricsData = await biometricsModel.getBiometricsData(userId, days);
     console.log('[Biometrics] Retrieved data points:', biometricsData.length);
     console.log('[Biometrics] First data point:', biometricsData[0] || 'No data');
     

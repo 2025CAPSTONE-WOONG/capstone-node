@@ -18,7 +18,7 @@ const insertBiometricData = async (userId, dataType, date, time, value) => {
   return result;
 };
 
-const getBiometricsData = async (userId) => {
+const getBiometricsData = async (userId, days = 1) => {
   const query = `
     SELECT 
       id,
@@ -29,11 +29,11 @@ const getBiometricsData = async (userId) => {
       created_at
     FROM biometrics 
     WHERE user_id = ?
-    AND date >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    AND date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
     ORDER BY date DESC, time DESC
   `;
 
-  const [rows] = await db.execute(query, [userId]);
+  const [rows] = await db.execute(query, [userId, days]);
   return rows;
 };
 
