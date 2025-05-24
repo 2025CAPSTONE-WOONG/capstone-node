@@ -11,34 +11,29 @@ const insertBiometricData = async (userId, biometricData) => {
     deep_sleep_minutes,
     rem_sleep_minutes,
     light_sleep_minutes,
-    avg_heart_rate,
-    max_heart_rate,
-    min_heart_rate
+    heart_rate
   } = biometricData;
 
   const query = `
     INSERT INTO biometrics (
       user_id, date, time, step_count, calories_burned, 
       distance_walked, total_sleep_minutes, deep_sleep_minutes,
-      rem_sleep_minutes, light_sleep_minutes, avg_heart_rate,
-      max_heart_rate, min_heart_rate
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      rem_sleep_minutes, light_sleep_minutes, heart_rate
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const [result] = await db.execute(query, [
     userId,
     date,
     time,
-    step_count || 0,
-    calories_burned || 0,
-    distance_walked || 0,
-    total_sleep_minutes || 0,
-    deep_sleep_minutes || 0,
-    rem_sleep_minutes || 0,
-    light_sleep_minutes || 0,
-    avg_heart_rate,
-    max_heart_rate,
-    min_heart_rate
+    step_count || null,
+    calories_burned || null,
+    distance_walked || null,
+    total_sleep_minutes || null,
+    deep_sleep_minutes || null,
+    rem_sleep_minutes || null,
+    light_sleep_minutes || null,
+    heart_rate || null
   ]);
 
   return result;
@@ -57,9 +52,7 @@ const getBiometricsData = async (userId) => {
       deep_sleep_minutes,
       rem_sleep_minutes,
       light_sleep_minutes,
-      avg_heart_rate,
-      max_heart_rate,
-      min_heart_rate,
+      heart_rate,
       created_at
     FROM biometrics 
     WHERE user_id = ?

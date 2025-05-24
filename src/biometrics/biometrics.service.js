@@ -7,61 +7,135 @@ const processBiometricData = async (req, res) => {
   console.log('User ID:', req.user.userId);
   
   try {
-    const { biometricsData } = req.body;
     const userId = req.user.userId;
+    const {
+      stepData,
+      caloriesBurnedData,
+      distanceWalked,
+      heartRateData,
+      totalSleepMinutes,
+      deepSleepMinutes,
+      remSleepMinutes,
+      lightSleepMinutes
+    } = req.body;
 
     console.log('[Biometrics] Processing data for user:', userId);
-    console.log('[Biometrics] Number of data points:', biometricsData?.length || 0);
 
-    if (!biometricsData || !Array.isArray(biometricsData)) {
-      console.log('[Biometrics] Error: Invalid data format - biometricsData is missing or not an array');
-      return errorResponse(res, 400, 'Invalid data format', {
-        field: 'biometricsData',
-        message: 'Data must be an array'
+    // Process step data
+    if (stepData && Array.isArray(stepData)) {
+      for (const data of stepData) {
+        if (!data.date || !data.time || !data.value) {
+          return errorResponse(res, 400, 'Invalid step data format', {
+            message: 'Each step data point must have date, time, and value'
+          });
+        }
+        await biometricsModel.insertBiometricData(userId, {
+          date: data.date,
+          time: data.time,
+          step_count: data.value
+        });
+      }
+    }
+
+    // Process calories burned data
+    if (caloriesBurnedData && Array.isArray(caloriesBurnedData)) {
+      for (const data of caloriesBurnedData) {
+        if (!data.date || !data.time || !data.value) {
+          return errorResponse(res, 400, 'Invalid calories data format', {
+            message: 'Each calories data point must have date, time, and value'
+          });
+        }
+        await biometricsModel.insertBiometricData(userId, {
+          date: data.date,
+          time: data.time,
+          calories_burned: data.value
+        });
+      }
+    }
+
+    // Process distance walked data
+    if (distanceWalked && Array.isArray(distanceWalked)) {
+      for (const data of distanceWalked) {
+        if (!data.date || !data.time || !data.value) {
+          return errorResponse(res, 400, 'Invalid distance data format', {
+            message: 'Each distance data point must have date, time, and value'
+          });
+        }
+        await biometricsModel.insertBiometricData(userId, {
+          date: data.date,
+          time: data.time,
+          distance_walked: data.value
+        });
+      }
+    }
+
+    // Process heart rate data
+    if (heartRateData && Array.isArray(heartRateData)) {
+      for (const data of heartRateData) {
+        if (!data.date || !data.time || !data.value) {
+          return errorResponse(res, 400, 'Invalid heart rate data format', {
+            message: 'Each heart rate data point must have date, time, and value'
+          });
+        }
+        await biometricsModel.insertBiometricData(userId, {
+          date: data.date,
+          time: data.time,
+          heart_rate: data.value
+        });
+      }
+    }
+
+    // Process sleep data
+    if (totalSleepMinutes) {
+      await biometricsModel.insertBiometricData(userId, {
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toTimeString().split(' ')[0],
+        total_sleep_minutes: totalSleepMinutes
       });
     }
 
-    for (const data of biometricsData) {
-      const { date, time } = data;
-      
-      console.log('[Biometrics] Processing data point:', {
-        date,
-        time,
-        userId
-      });
-      
-      if (!date || !time) {
-        console.log('[Biometrics] Error: Missing required fields in data point:', data);
-        return errorResponse(res, 400, 'Missing required fields', {
-          field: 'date, time',
-          message: 'Date and time are required fields'
-        });
-      }
-
-      // Validate numeric fields
-      const numericFields = [
-        'step_count', 'calories_burned', 'distance_walked',
-        'total_sleep_minutes', 'deep_sleep_minutes', 'rem_sleep_minutes',
-        'light_sleep_minutes', 'avg_heart_rate', 'max_heart_rate', 'min_heart_rate'
-      ];
-
-      for (const field of numericFields) {
-        if (data[field] !== undefined && isNaN(data[field])) {
-          console.log(`[Biometrics] Error: Invalid numeric value for field ${field}:`, data[field]);
-          return errorResponse(res, 400, 'Invalid numeric value', {
-            field,
-            message: `${field} must be a number`
+    if (deepSleepMinutes && Array.isArray(deepSleepMinutes)) {
+      for (const data of deepSleepMinutes) {
+        if (!data.date || !data.time || !data.value) {
+          return errorResponse(res, 400, 'Invalid deep sleep data format', {
+            message: 'Each deep sleep data point must have date, time, and value'
           });
         }
+        await biometricsModel.insertBiometricData(userId, {
+          date: data.date,
+          time: data.time,
+          deep_sleep_minutes: data.value
+        });
       }
+    }
 
-      try {
-        await biometricsModel.insertBiometricData(userId, data);
-        console.log('[Biometrics] Successfully inserted data point');
-      } catch (dbError) {
-        console.error('[Biometrics] Database error for data point:', data);
-        console.error('[Biometrics] Database error details:', dbError);
-        throw dbError;
+    if (remSleepMinutes && Array.isArray(remSleepMinutes)) {
+      for (const data of remSleepMinutes) {
+        if (!data.date || !data.time || !data.value) {
+          return errorResponse(res, 400, 'Invalid REM sleep data format', {
+            message: 'Each REM sleep data point must have date, time, and value'
+          });
+        }
+        await biometricsModel.insertBiometricData(userId, {
+          date: data.date,
+          time: data.time,
+          rem_sleep_minutes: data.value
+        });
+      }
+    }
+
+    if (lightSleepMinutes && Array.isArray(lightSleepMinutes)) {
+      for (const data of lightSleepMinutes) {
+        if (!data.date || !data.time || !data.value) {
+          return errorResponse(res, 400, 'Invalid light sleep data format', {
+            message: 'Each light sleep data point must have date, time, and value'
+          });
+        }
+        await biometricsModel.insertBiometricData(userId, {
+          date: data.date,
+          time: data.time,
+          light_sleep_minutes: data.value
+        });
       }
     }
 

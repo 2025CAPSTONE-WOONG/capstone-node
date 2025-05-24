@@ -41,25 +41,29 @@ const biometricsService = require('./biometrics.service');
  *                             type: string
  *                             format: time
  *                           step_count:
- *                             type: integer
+ *                             type: string
+ *                             description: Encrypted step count value
  *                           calories_burned:
- *                             type: number
+ *                             type: string
+ *                             description: Encrypted calories burned value
  *                           distance_walked:
- *                             type: number
+ *                             type: string
+ *                             description: Encrypted distance walked value
  *                           total_sleep_minutes:
- *                             type: integer
+ *                             type: string
+ *                             description: Encrypted total sleep minutes value
  *                           deep_sleep_minutes:
- *                             type: integer
+ *                             type: string
+ *                             description: Encrypted deep sleep minutes value
  *                           rem_sleep_minutes:
- *                             type: integer
+ *                             type: string
+ *                             description: Encrypted REM sleep minutes value
  *                           light_sleep_minutes:
- *                             type: integer
- *                           avg_heart_rate:
- *                             type: number
- *                           max_heart_rate:
- *                             type: number
- *                           min_heart_rate:
- *                             type: number
+ *                             type: string
+ *                             description: Encrypted light sleep minutes value
+ *                           heart_rate:
+ *                             type: string
+ *                             description: Encrypted heart rate value
  *                           created_at:
  *                             type: string
  *                             format: date-time
@@ -75,7 +79,7 @@ router.get('/', auth, biometricsService.getBiometricsData);
  * /data/receive:
  *   post:
  *     summary: Receive biometric data
- *     description: Receive and store biometric data including steps, calories, sleep, and heart rate
+ *     description: Receive and store encrypted biometric data including steps, calories, sleep, and heart rate
  *     tags: [Biometrics]
  *     security:
  *       - bearerAuth: []
@@ -86,13 +90,14 @@ router.get('/', auth, biometricsService.getBiometricsData);
  *           schema:
  *             type: object
  *             properties:
- *               biometricsData:
+ *               stepData:
  *                 type: array
  *                 items:
  *                   type: object
  *                   required:
  *                     - date
  *                     - time
+ *                     - value
  *                   properties:
  *                     date:
  *                       type: string
@@ -100,33 +105,120 @@ router.get('/', auth, biometricsService.getBiometricsData);
  *                     time:
  *                       type: string
  *                       format: time
- *                     step_count:
- *                       type: integer
- *                       default: 0
- *                     calories_burned:
- *                       type: number
- *                       default: 0
- *                     distance_walked:
- *                       type: number
- *                       default: 0
- *                     total_sleep_minutes:
- *                       type: integer
- *                       default: 0
- *                     deep_sleep_minutes:
- *                       type: integer
- *                       default: 0
- *                     rem_sleep_minutes:
- *                       type: integer
- *                       default: 0
- *                     light_sleep_minutes:
- *                       type: integer
- *                       default: 0
- *                     avg_heart_rate:
- *                       type: number
- *                     max_heart_rate:
- *                       type: number
- *                     min_heart_rate:
- *                       type: number
+ *                     value:
+ *                       type: string
+ *                       description: Encrypted step count value
+ *               caloriesBurnedData:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - date
+ *                     - time
+ *                     - value
+ *                   properties:
+ *                     date:
+ *                       type: string
+ *                       format: date
+ *                     time:
+ *                       type: string
+ *                       format: time
+ *                     value:
+ *                       type: string
+ *                       description: Encrypted calories burned value
+ *               distanceWalked:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - date
+ *                     - time
+ *                     - value
+ *                   properties:
+ *                     date:
+ *                       type: string
+ *                       format: date
+ *                     time:
+ *                       type: string
+ *                       format: time
+ *                     value:
+ *                       type: string
+ *                       description: Encrypted distance walked value
+ *               heartRateData:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - date
+ *                     - time
+ *                     - value
+ *                   properties:
+ *                     date:
+ *                       type: string
+ *                       format: date
+ *                     time:
+ *                       type: string
+ *                       format: time
+ *                     value:
+ *                       type: string
+ *                       description: Encrypted heart rate value
+ *               totalSleepMinutes:
+ *                 type: string
+ *                 description: Encrypted total sleep minutes value
+ *               deepSleepMinutes:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - date
+ *                     - time
+ *                     - value
+ *                   properties:
+ *                     date:
+ *                       type: string
+ *                       format: date
+ *                     time:
+ *                       type: string
+ *                       format: time
+ *                     value:
+ *                       type: string
+ *                       description: Encrypted deep sleep minutes value
+ *               remSleepMinutes:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - date
+ *                     - time
+ *                     - value
+ *                   properties:
+ *                     date:
+ *                       type: string
+ *                       format: date
+ *                     time:
+ *                       type: string
+ *                       format: time
+ *                     value:
+ *                       type: string
+ *                       description: Encrypted REM sleep minutes value
+ *               lightSleepMinutes:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - date
+ *                     - time
+ *                     - value
+ *                   properties:
+ *                     date:
+ *                       type: string
+ *                       format: date
+ *                     time:
+ *                       type: string
+ *                       format: time
+ *                     value:
+ *                       type: string
+ *                       description: Encrypted light sleep minutes value
  *     responses:
  *       200:
  *         description: Data received successfully
