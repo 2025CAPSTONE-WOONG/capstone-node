@@ -21,6 +21,7 @@ const reportsService = require('./reports.service');
  *             required:
  *               - reportType
  *               - content
+ *               - title
  *             properties:
  *               reportType:
  *                 type: string
@@ -29,6 +30,9 @@ const reportsService = require('./reports.service');
  *               content:
  *                 type: object
  *                 description: Report content in JSON format
+ *               title:
+ *                 type: string
+ *                 description: Title of the report
  *     responses:
  *       201:
  *         description: Report created successfully
@@ -98,6 +102,8 @@ router.post('/', auth, reportsService.createReport);
  *                           report_type:
  *                             type: string
  *                             enum: [daily, weekly]
+ *                           title:
+ *                             type: string
  *                           content:
  *                             type: object
  *                           created_at:

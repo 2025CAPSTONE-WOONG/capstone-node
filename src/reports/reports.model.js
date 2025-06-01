@@ -1,16 +1,17 @@
 const db = require('../config/database');
 
-const insertReport = async (userId, reportType, content) => {
+const insertReport = async (userId, reportType, content, title) => {
   const query = `
     INSERT INTO reports (
-      user_id, report_type, content
-    ) VALUES (?, ?, ?)
+      user_id, report_type, content, title
+    ) VALUES (?, ?, ?, ?)
   `;
 
   const [result] = await db.execute(query, [
     userId,
     reportType,
-    JSON.stringify(content)
+    JSON.stringify(content),
+    title
   ]);
 
   return result;
@@ -22,6 +23,7 @@ const getReports = async (userId, reportType = null) => {
       id,
       user_id,
       report_type,
+      title,
       content,
       created_at
     FROM reports 

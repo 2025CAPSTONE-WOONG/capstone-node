@@ -8,13 +8,13 @@ const createReport = async (req, res) => {
   
   try {
     const userId = req.user.userId;
-    const { reportType, content } = req.body;
+    const { reportType, content, title } = req.body;
 
     // 필수 필드 검증
-    if (!reportType || !content) {
+    if (!reportType || !content || !title) {
       return errorResponse(res, 400, 'Missing required fields', {
-        field: 'reportType, content',
-        message: 'Report type and content are required fields'
+        field: 'reportType, content, title',
+        message: 'Report type, content, and title are required fields'
       });
     }
 
@@ -28,7 +28,7 @@ const createReport = async (req, res) => {
 
     console.log(`[Reports] Creating ${reportType} report for user:`, userId);
 
-    const result = await reportsModel.insertReport(userId, reportType, content);
+    const result = await reportsModel.insertReport(userId, reportType, content, title);
     console.log('[Reports] Report created successfully:', result.insertId);
     
     return successResponse(res, 201, 'Report created successfully', {
