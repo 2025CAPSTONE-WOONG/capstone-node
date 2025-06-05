@@ -7,61 +7,54 @@ const processBiometricData = async (req, res) => {
   console.log('User ID:', req.user.userId);
   
   try {
-    const { biometricsData } = req.body;
     const userId = req.user.userId;
+    const {
+      stepData,
+      caloriesBurnedData,
+      distanceWalked,
+      deepSleepMinutes,
+      lightSleepMinutes,
+      remSleepMinutes,
+      heartRateData
+    } = req.body;
 
     console.log('[Biometrics] Processing data for user:', userId);
-    console.log('[Biometrics] Number of data points:', biometricsData?.length || 0);
 
-    if (!biometricsData || !Array.isArray(biometricsData)) {
-      console.log('[Biometrics] Error: Invalid data format - biometricsData is missing or not an array');
-      return errorResponse(res, 400, 'Invalid data format', {
-        field: 'biometricsData',
-        message: 'Data must be an array'
-      });
-    }
+    // 각 데이터 타입별로 처리
+    const dataTypes = {
+      step: stepData,
+      calories: caloriesBurnedData,
+      distance: distanceWalked,
+      deep_sleep: deepSleepMinutes,
+      light_sleep: lightSleepMinutes,
+      rem_sleep: remSleepMinutes,
+      heart_rate: heartRateData
+    };
 
-    for (const data of biometricsData) {
-      const { date, time } = data;
-      
-      console.log('[Biometrics] Processing data point:', {
-        date,
-        time,
-        userId
-      });
-      
-      if (!date || !time) {
-        console.log('[Biometrics] Error: Missing required fields in data point:', data);
-        return errorResponse(res, 400, 'Missing required fields', {
-          field: 'date, time',
-          message: 'Date and time are required fields'
-        });
-      }
+    for (const [dataType, dataArray] of Object.entries(dataTypes)) {
+      if (!Array.isArray(dataArray)) continue;
 
-      // Validate numeric fields
-      const numericFields = [
-        'step_count', 'calories_burned', 'distance_walked',
-        'total_sleep_minutes', 'deep_sleep_minutes', 'rem_sleep_minutes',
-        'light_sleep_minutes', 'avg_heart_rate', 'max_heart_rate', 'min_heart_rate'
-      ];
+      console.log(`[Biometrics] Processing ${dataType} data:`, dataArray.length, 'points');
 
-      for (const field of numericFields) {
-        if (data[field] !== undefined && isNaN(data[field])) {
-          console.log(`[Biometrics] Error: Invalid numeric value for field ${field}:`, data[field]);
-          return errorResponse(res, 400, 'Invalid numeric value', {
-            field,
-            message: `${field} must be a number`
+      for (const data of dataArray) {
+        const { date, time, value } = data;
+        
+        if (!date || !time || !value) {
+          console.log('[Biometrics] Error: Missing required fields in data point:', data);
+          return errorResponse(res, 400, 'Missing required fields', {
+            field: 'date, time, value',
+            message: 'Date, time, and value are required fields'
           });
         }
-      }
 
-      try {
-        await biometricsModel.insertBiometricData(userId, data);
-        console.log('[Biometrics] Successfully inserted data point');
-      } catch (dbError) {
-        console.error('[Biometrics] Database error for data point:', data);
-        console.error('[Biometrics] Database error details:', dbError);
-        throw dbError;
+        try {
+          await biometricsModel.insertBiometricData(userId, dataType, date, time, value);
+          console.log('[Biometrics] Successfully inserted data point for', dataType);
+        } catch (dbError) {
+          console.error('[Biometrics] Database error for data point:', data);
+          console.error('[Biometrics] Database error details:', dbError);
+          throw dbError;
+        }
       }
     }
 
@@ -81,9 +74,19 @@ const getBiometricsData = async (req, res) => {
   
   try {
     const userId = req.user.userId;
-    console.log('[Biometrics] Fetching data for user:', userId);
+    const days = parseInt(req.query.days) || 1;
 
-    const biometricsData = await biometricsModel.getBiometricsData(userId);
+    // days 파라미터 유효성 검사
+    if (isNaN(days) || days < 1 || days > 30) {
+      return errorResponse(res, 400, 'Invalid days parameter', {
+        field: 'days',
+        message: 'Days must be a number between 1 and 30'
+      });
+    }
+
+    console.log(`[Biometrics] Fetching last ${days} days data for user:`, userId);
+
+    const biometricsData = await biometricsModel.getBiometricsData(userId, days);
     console.log('[Biometrics] Retrieved data points:', biometricsData.length);
     console.log('[Biometrics] First data point:', biometricsData[0] || 'No data');
     

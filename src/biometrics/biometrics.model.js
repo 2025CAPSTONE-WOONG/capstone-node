@@ -1,72 +1,39 @@
 const db = require('../config/database');
 
-const insertBiometricData = async (userId, biometricData) => {
-  const {
-    date,
-    time,
-    step_count,
-    calories_burned,
-    distance_walked,
-    total_sleep_minutes,
-    deep_sleep_minutes,
-    rem_sleep_minutes,
-    light_sleep_minutes,
-    avg_heart_rate,
-    max_heart_rate,
-    min_heart_rate
-  } = biometricData;
-
+const insertBiometricData = async (userId, dataType, date, time, value) => {
   const query = `
     INSERT INTO biometrics (
-      user_id, date, time, step_count, calories_burned, 
-      distance_walked, total_sleep_minutes, deep_sleep_minutes,
-      rem_sleep_minutes, light_sleep_minutes, avg_heart_rate,
-      max_heart_rate, min_heart_rate
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      user_id, data_type, date, time, value
+    ) VALUES (?, ?, ?, ?, ?)
   `;
 
   const [result] = await db.execute(query, [
     userId,
+    dataType,
     date,
     time,
-    step_count || 0,
-    calories_burned || 0,
-    distance_walked || 0,
-    total_sleep_minutes || 0,
-    deep_sleep_minutes || 0,
-    rem_sleep_minutes || 0,
-    light_sleep_minutes || 0,
-    avg_heart_rate,
-    max_heart_rate,
-    min_heart_rate
+    value
   ]);
 
   return result;
 };
 
-const getBiometricsData = async (userId) => {
+const getBiometricsData = async (userId, days = 1) => {
   const query = `
     SELECT 
       id,
+      data_type,
       date,
       time,
-      step_count,
-      calories_burned,
-      distance_walked,
-      total_sleep_minutes,
-      deep_sleep_minutes,
-      rem_sleep_minutes,
-      light_sleep_minutes,
-      avg_heart_rate,
-      max_heart_rate,
-      min_heart_rate,
+      value,
       created_at
     FROM biometrics 
     WHERE user_id = ?
+    AND date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
     ORDER BY date DESC, time DESC
   `;
 
-  const [rows] = await db.execute(query, [userId]);
+  const [rows] = await db.execute(query, [userId, days]);
   return rows;
 };
 
