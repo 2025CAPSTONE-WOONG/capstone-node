@@ -180,9 +180,74 @@ const localLogin = async (req, res) => {
   }
 };
 
+const getUserDetails = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const userDetails = await userModel.getUserDetails(userId);
+    
+    if (!userDetails) {
+      return errorResponse(res, 404, '사용자를 찾을 수 없습니다.', {
+        field: 'userId',
+        message: 'User not found'
+      });
+    }
+
+    return successResponse(res, 200, '사용자 정보 조회가 완료되었습니다.', userDetails);
+  } catch (error) {
+    console.error('Get user details error:', error);
+    return errorResponse(res, 500, '사용자 정보 조회 중 오류가 발생했습니다.', { error: error.message });
+  }
+};
+
+const updateUserDetails = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const userData = req.body;
+
+    // 업데이트할 데이터가 없는 경우
+    if (Object.keys(userData).length === 0) {
+      return errorResponse(res, 400, '업데이트할 정보가 없습니다.', {
+        message: 'No update data provided'
+      });
+    }
+
+    // 성별 값 검증 (제공된 경우에만)
+    if (userData.gender !== undefined && !['male', 'female'].includes(userData.gender)) {
+      return errorResponse(res, 400, '잘못된 성별 값입니다.', {
+        field: 'gender',
+        message: 'Gender must be either "male" or "female"'
+      });
+    }
+
+    // 나이 값 검증 (제공된 경우에만)
+    if (userData.age !== undefined && (isNaN(userData.age) || userData.age < 0 || userData.age > 150)) {
+      return errorResponse(res, 400, '잘못된 나이 값입니다.', {
+        field: 'age',
+        message: 'Age must be a valid number between 0 and 150'
+      });
+    }
+
+    const updated = await userModel.updateUserDetails(userId, userData);
+    if (!updated) {
+      return errorResponse(res, 404, '사용자를 찾을 수 없습니다.', {
+        field: 'userId',
+        message: 'User not found'
+      });
+    }
+
+    const updatedUser = await userModel.getUserDetails(userId);
+    return successResponse(res, 200, '사용자 정보가 업데이트되었습니다.', updatedUser);
+  } catch (error) {
+    console.error('Update user details error:', error);
+    return errorResponse(res, 500, '사용자 정보 업데이트 중 오류가 발생했습니다.', { error: error.message });
+  }
+};
+
 module.exports = {
   googleLogin,
   localSignup,
   localLogin,
-  updateProfile
+  updateProfile,
+  getUserDetails,
+  updateUserDetails
 }; 

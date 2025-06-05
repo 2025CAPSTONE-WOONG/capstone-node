@@ -128,6 +128,79 @@ const findOrCreateGoogleUser = async (email) => {
   }
 };
 
+const getUserDetails = async (userId) => {
+  const query = `
+    SELECT 
+      id,
+      nickname,
+      name,
+      gender,
+      age,
+      major,
+      emotion,
+      email,
+      created_at,
+      updated_at
+    FROM users 
+    WHERE id = ?
+  `;
+
+  const [rows] = await db.execute(query, [userId]);
+  return rows[0];
+};
+
+const updateUserDetails = async (userId, userData) => {
+  // 업데이트할 필드와 값들을 동적으로 구성
+  const updateFields = [];
+  const updateValues = [];
+
+  // 각 필드가 존재하는 경우에만 업데이트 목록에 추가
+  if (userData.nickname !== undefined) {
+    updateFields.push('nickname = ?');
+    updateValues.push(userData.nickname);
+  }
+  if (userData.name !== undefined) {
+    updateFields.push('name = ?');
+    updateValues.push(userData.name);
+  }
+  if (userData.gender !== undefined) {
+    updateFields.push('gender = ?');
+    updateValues.push(userData.gender);
+  }
+  if (userData.age !== undefined) {
+    updateFields.push('age = ?');
+    updateValues.push(userData.age);
+  }
+  if (userData.major !== undefined) {
+    updateFields.push('major = ?');
+    updateValues.push(userData.major);
+  }
+  if (userData.emotion !== undefined) {
+    updateFields.push('emotion = ?');
+    updateValues.push(userData.emotion);
+  }
+
+  // 업데이트할 필드가 없는 경우
+  if (updateFields.length === 0) {
+    return false;
+  }
+
+  // updated_at은 항상 업데이트
+  updateFields.push('updated_at = CURRENT_TIMESTAMP');
+  
+  // WHERE 절을 위한 userId 추가
+  updateValues.push(userId);
+
+  const query = `
+    UPDATE users 
+    SET ${updateFields.join(', ')}
+    WHERE id = ?
+  `;
+
+  const [result] = await db.execute(query, updateValues);
+  return result.affectedRows > 0;
+};
+
 module.exports = {
   findByEmail,
   create,
@@ -136,5 +209,7 @@ module.exports = {
   verifyPassword,
   updateProfile,
   getProfile,
-  findOrCreateGoogleUser
+  findOrCreateGoogleUser,
+  getUserDetails,
+  updateUserDetails
 }; 

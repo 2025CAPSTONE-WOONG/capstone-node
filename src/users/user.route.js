@@ -215,4 +215,127 @@ router.post('/signup', userService.localSignup);
  */
 router.post('/login', userService.localLogin);
 
+/**
+ * @swagger
+ * /users/me:
+ *   get:
+ *     summary: 사용자 상세 정보 조회
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 nickname:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 gender:
+ *                   type: string
+ *                   enum: [male, female]
+ *                 age:
+ *                   type: integer
+ *                 major:
+ *                   type: string
+ *                 emotion:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 created_at:
+ *                   type: string
+ *                   format: date-time
+ *                 updated_at:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/me', auth, userService.getUserDetails);
+
+/**
+ * @swagger
+ * /users/me:
+ *   put:
+ *     summary: 사용자 상세 정보 업데이트
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nickname:
+ *                 type: string
+ *                 example: "준우"
+ *               name:
+ *                 type: string
+ *                 example: "김준우"
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female]
+ *                 example: "male"
+ *               age:
+ *                 type: integer
+ *                 example: 25
+ *               major:
+ *                 type: string
+ *                 example: "컴퓨터공학"
+ *               emotion:
+ *                 type: string
+ *                 example: "긴장됨"
+ *     responses:
+ *       200:
+ *         description: User details updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 nickname:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 gender:
+ *                   type: string
+ *                 age:
+ *                   type: integer
+ *                 major:
+ *                   type: string
+ *                 emotion:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 created_at:
+ *                   type: string
+ *                   format: date-time
+ *                 updated_at:
+ *                   type: string
+ *                   format: date-time
+ *       400:
+ *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.put('/me', auth, userService.updateUserDetails);
+
 module.exports = router; 
