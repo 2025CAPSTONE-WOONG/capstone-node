@@ -18,6 +18,25 @@ const insertBiometricData = async (userId, dataType, date, time, value) => {
   return result;
 };
 
+const batchInsertBiometricData = async (userId, dataType, records) => {
+  const query = `
+    INSERT INTO biometrics (
+      user_id, data_type, date, time, value
+    ) VALUES ?
+  `;
+
+  const values = records.map(record => [
+    userId,
+    dataType,
+    record.date,
+    record.time,
+    record.value
+  ]);
+
+  const [result] = await db.query(query, [values]);
+  return result;
+};
+
 const getBiometricsData = async (userId, days = 1) => {
   const query = `
     SELECT 
@@ -39,5 +58,6 @@ const getBiometricsData = async (userId, days = 1) => {
 
 module.exports = {
   insertBiometricData,
+  batchInsertBiometricData,
   getBiometricsData
 }; 

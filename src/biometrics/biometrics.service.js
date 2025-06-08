@@ -101,7 +101,48 @@ const getBiometricsData = async (req, res) => {
   }
 };
 
+const batchProcessBiometricData = async (req, res) => {
+  console.log('=== Biometrics Batch Insert API Called ===');
+  console.log('Request Body:', JSON.stringify(req.body, null, 2));
+  console.log('User ID:', req.user.userId);
+  
+  try {
+    const userId = req.user.userId;
+    const { dataType, records } = req.body;
+
+    if (!dataType || !Array.isArray(records) || records.length === 0) {
+      return errorResponse(res, 400, 'Invalid request data', {
+        message: 'dataType and non-empty records array are required'
+      });
+    }
+
+    // Validate all records
+    for (const record of records) {
+      if (!record.date || !record.time || !record.value) {
+        return errorResponse(res, 400, 'Invalid record data', {
+          message: 'Each record must have date, time, and value fields'
+        });
+      }
+    }
+
+    console.log(`[Biometrics] Processing batch insert for ${dataType}:`, records.length, 'records');
+
+    const result = await biometricsModel.batchInsertBiometricData(userId, dataType, records);
+    console.log('[Biometrics] Batch insert completed successfully');
+    
+    return successResponse(res, 200, 'Biometrics data batch inserted successfully', {
+      insertedCount: result.affectedRows
+    });
+  } catch (error) {
+    console.error('=== Error in Biometrics Batch Insert API ===');
+    console.error('Error details:', error);
+    console.error('Error stack:', error.stack);
+    return errorResponse(res, 500, 'Error processing batch biometric data', { error: error.message });
+  }
+};
+
 module.exports = {
   processBiometricData,
-  getBiometricsData
+  getBiometricsData,
+  batchProcessBiometricData
 }; 

@@ -7,8 +7,8 @@ const biometricsService = require('./biometrics.service');
  * @swagger
  * /data:
  *   get:
- *     summary: Get user's biometrics data
- *     description: Retrieve all biometrics data for the authenticated user for the specified number of days
+ *     summary: 사용자의 생체 데이터 조회
+ *     description: 인증된 사용자의 지정된 일수 동안의 모든 생체 데이터를 조회합니다
  *     tags: [Biometrics]
  *     security:
  *       - bearerAuth: []
@@ -20,10 +20,10 @@ const biometricsService = require('./biometrics.service');
  *           minimum: 1
  *           maximum: 30
  *           default: 1
- *         description: Number of days to retrieve data for (1-30 days)
+ *         description: 데이터를 조회할 일수 (1-30일)
  *     responses:
  *       200:
- *         description: Biometrics data retrieved successfully
+ *         description: 생체 데이터 조회 성공
  *         content:
  *           application/json:
  *             schema:
@@ -58,11 +58,11 @@ const biometricsService = require('./biometrics.service');
  *                             type: string
  *                             format: date-time
  *       400:
- *         description: Invalid days parameter
+ *         description: 잘못된 일수 파라미터
  *       401:
- *         description: Unauthorized
+ *         description: 인증되지 않음
  *       500:
- *         description: Server error
+ *         description: 서버 오류
  */
 router.get('/', auth, biometricsService.getBiometricsData);
 
@@ -70,8 +70,8 @@ router.get('/', auth, biometricsService.getBiometricsData);
  * @swagger
  * /data/receive:
  *   post:
- *     summary: Receive biometric data
- *     description: Receive and store biometric data including steps, calories, sleep, and heart rate
+ *     summary: 생체 데이터 수신
+ *     description: 걸음 수, 칼로리, 수면, 심박수 등의 생체 데이터를 수신하고 저장합니다
  *     tags: [Biometrics]
  *     security:
  *       - bearerAuth: []
@@ -125,15 +125,68 @@ router.get('/', auth, biometricsService.getBiometricsData);
  *                   $ref: '#/components/schemas/BiometricDataPoint'
  *     responses:
  *       200:
- *         description: Data received successfully
+ *         description: 데이터 수신 성공
  *       400:
- *         description: Invalid request data
+ *         description: 잘못된 요청 데이터
  *       401:
- *         description: Unauthorized
+ *         description: 인증되지 않음
  *       500:
- *         description: Server error
+ *         description: 서버 오류
  */
 router.post('/receive', auth, biometricsService.processBiometricData);
+
+/**
+ * @swagger
+ * /data/batch:
+ *   post:
+ *     summary: 생체 데이터 일괄 삽입
+ *     description: 동일한 유형의 여러 생체 데이터 레코드를 한 번에 삽입합니다
+ *     tags: [Biometrics]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - dataType
+ *               - records
+ *             properties:
+ *               dataType:
+ *                 type: string
+ *                 enum: [step, calories, distance, deep_sleep, light_sleep, rem_sleep, heart_rate]
+ *                 description: 삽입할 생체 데이터 유형
+ *               records:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/BiometricDataPoint'
+ *     responses:
+ *       200:
+ *         description: 데이터 일괄 삽입 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     insertedCount:
+ *                       type: integer
+ *       400:
+ *         description: 잘못된 요청 데이터
+ *       401:
+ *         description: 인증되지 않음
+ *       500:
+ *         description: 서버 오류
+ */
+router.post('/batch', auth, biometricsService.batchProcessBiometricData);
 
 /**
  * @swagger
@@ -149,11 +202,14 @@ router.post('/receive', auth, biometricsService.processBiometricData);
  *         date:
  *           type: string
  *           format: date
+ *           description: 날짜
  *         time:
  *           type: string
  *           format: time
+ *           description: 시간
  *         value:
  *           type: string
+ *           description: 측정값
  */
 
 module.exports = router; 
