@@ -1,45 +1,43 @@
 const db = require('../config/database');
 
-const insertReport = async (userId, reportType, content, title) => {
+const insertReport = async (userId, date, routineName, duration, reason, success, feedback) => {
   const query = `
     INSERT INTO reports (
-      user_id, report_type, content, title
-    ) VALUES (?, ?, ?, ?)
+      user_id, date, routine_name, duration, reason, success, feedback
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
   const [result] = await db.execute(query, [
     userId,
-    reportType,
-    JSON.stringify(content),
-    title
+    date,
+    routineName,
+    duration,
+    reason,
+    success,
+    feedback
   ]);
 
   return result;
 };
 
-const getReports = async (userId, reportType = null) => {
-  let query = `
+const getReports = async (userId) => {
+  const query = `
     SELECT 
       id,
       user_id,
-      report_type,
-      title,
-      content,
+      date,
+      routine_name,
+      duration,
+      reason,
+      success,
+      feedback,
       created_at
     FROM reports 
     WHERE user_id = ?
+    ORDER BY date DESC, created_at DESC
   `;
   
-  const params = [userId];
-  
-  if (reportType) {
-    query += ' AND report_type = ?';
-    params.push(reportType);
-  }
-  
-  query += ' ORDER BY created_at DESC';
-
-  const [rows] = await db.execute(query, params);
+  const [rows] = await db.execute(query, [userId]);
   return rows;
 };
 

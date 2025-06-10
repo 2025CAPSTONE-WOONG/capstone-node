@@ -7,8 +7,8 @@ const reportsService = require('./reports.service');
  * @swagger
  * /reports:
  *   post:
- *     summary: Create a new report
- *     description: Create a new daily or weekly report for the authenticated user
+ *     summary: Create a new routine report
+ *     description: Create a new report for a completed routine
  *     tags: [Reports]
  *     security:
  *       - bearerAuth: []
@@ -19,20 +19,30 @@ const reportsService = require('./reports.service');
  *           schema:
  *             type: object
  *             required:
- *               - reportType
- *               - content
- *               - title
+ *               - date
+ *               - routineName
+ *               - duration
+ *               - success
  *             properties:
- *               reportType:
+ *               date:
  *                 type: string
- *                 enum: [daily, weekly]
- *                 description: Type of the report
- *               content:
- *                 type: object
- *                 description: Report content in JSON format
- *               title:
+ *                 format: date
+ *                 description: Date of the routine
+ *               routineName:
  *                 type: string
- *                 description: Title of the report
+ *                 description: Name of the routine
+ *               duration:
+ *                 type: integer
+ *                 description: Duration of the routine in minutes
+ *               reason:
+ *                 type: string
+ *                 description: Reason for success/failure (optional)
+ *               success:
+ *                 type: boolean
+ *                 description: Whether the routine was completed successfully
+ *               feedback:
+ *                 type: string
+ *                 description: Additional feedback about the routine (optional)
  *     responses:
  *       201:
  *         description: Report created successfully
@@ -63,18 +73,11 @@ router.post('/', auth, reportsService.createReport);
  * @swagger
  * /reports:
  *   get:
- *     summary: Get user's reports
- *     description: Retrieve all reports for the authenticated user, optionally filtered by report type
+ *     summary: Get user's routine reports
+ *     description: Retrieve all routine reports for the authenticated user
  *     tags: [Reports]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: reportType
- *         schema:
- *           type: string
- *           enum: [daily, weekly]
- *         description: Filter reports by type (optional)
  *     responses:
  *       200:
  *         description: Reports retrieved successfully
@@ -99,18 +102,22 @@ router.post('/', auth, reportsService.createReport);
  *                             type: integer
  *                           user_id:
  *                             type: integer
- *                           report_type:
+ *                           date:
  *                             type: string
- *                             enum: [daily, weekly]
- *                           title:
+ *                             format: date
+ *                           routine_name:
  *                             type: string
- *                           content:
- *                             type: object
+ *                           duration:
+ *                             type: integer
+ *                           reason:
+ *                             type: string
+ *                           success:
+ *                             type: boolean
+ *                           feedback:
+ *                             type: string
  *                           created_at:
  *                             type: string
  *                             format: date-time
- *       400:
- *         description: Invalid report type parameter
  *       401:
  *         description: Unauthorized
  *       500:

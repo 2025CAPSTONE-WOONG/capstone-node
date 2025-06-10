@@ -5,6 +5,7 @@ const userRoutes = require('./users/user.route');
 const healthRoutes = require('./health/health.route');
 const routineRoutes = require('./routines/routine.route');
 const biometricsRoutes = require('./biometrics/biometrics.route');
+const reportsRoutes = require('./reports/reports.route');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 
@@ -48,6 +49,7 @@ app.use('/users', userRoutes);
 app.use('/health', healthRoutes);
 app.use('/routines', routineRoutes);
 app.use('/data', biometricsRoutes);
+app.use('/reports', reportsRoutes);
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);

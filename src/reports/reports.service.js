@@ -8,27 +8,35 @@ const createReport = async (req, res) => {
   
   try {
     const userId = req.user.userId;
-    const { reportType, content, title } = req.body;
+    const { date, routineName, duration, reason, success, feedback } = req.body;
 
     // 필수 필드 검증
-    if (!reportType || !content || !title) {
+    if (!date || !routineName || duration === undefined || success === undefined) {
       return errorResponse(res, 400, 'Missing required fields', {
-        field: 'reportType, content, title',
-        message: 'Report type, content, and title are required fields'
+        field: 'date, routineName, duration, success',
+        message: 'Date, routine name, duration, and success are required fields'
       });
     }
 
-    // reportType 유효성 검사
-    if (!['daily', 'weekly'].includes(reportType)) {
-      return errorResponse(res, 400, 'Invalid report type', {
-        field: 'reportType',
-        message: 'Report type must be either "daily" or "weekly"'
+    // duration 유효성 검사
+    if (duration < 0) {
+      return errorResponse(res, 400, 'Invalid duration', {
+        field: 'duration',
+        message: 'Duration cannot be negative'
       });
     }
 
-    console.log(`[Reports] Creating ${reportType} report for user:`, userId);
+    console.log(`[Reports] Creating report for user:`, userId);
 
-    const result = await reportsModel.insertReport(userId, reportType, content, title);
+    const result = await reportsModel.insertReport(
+      userId,
+      date,
+      routineName,
+      duration,
+      reason,
+      success,
+      feedback
+    );
     console.log('[Reports] Report created successfully:', result.insertId);
     
     return successResponse(res, 201, 'Report created successfully', {
@@ -48,22 +56,10 @@ const getReports = async (req, res) => {
   
   try {
     const userId = req.user.userId;
-    const { reportType } = req.query;
-
-    // reportType 유효성 검사 (선택적)
-    if (reportType && !['daily', 'weekly'].includes(reportType)) {
-      return errorResponse(res, 400, 'Invalid report type', {
-        field: 'reportType',
-        message: 'Report type must be either "daily" or "weekly"'
-      });
-    }
 
     console.log(`[Reports] Fetching reports for user:`, userId);
-    if (reportType) {
-      console.log(`[Reports] Filtering by report type:`, reportType);
-    }
 
-    const reports = await reportsModel.getReports(userId, reportType);
+    const reports = await reportsModel.getReports(userId);
     console.log('[Reports] Retrieved reports:', reports.length);
     
     return successResponse(res, 200, 'Reports retrieved successfully', {
@@ -91,7 +87,7 @@ const createRoutineFeedback = async (req, res) => {
         message: 'All fields are required'
       });
     }
-
+    
     // focusScore 유효성 검사
     if (focusScore < 0 || focusScore > 100) {
       return errorResponse(res, 400, 'Invalid focus score', {
