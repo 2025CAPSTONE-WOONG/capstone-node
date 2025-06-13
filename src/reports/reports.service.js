@@ -8,21 +8,21 @@ const createReport = async (req, res) => {
   
   try {
     const userId = req.user.userId;
-    const { date, routineName, duration, reason, success, feedback } = req.body;
+    const { duration, feedback, reason, recommendedRoutine, startTime, success } = req.body;
 
     // 필수 필드 검증
-    if (!date || !routineName || duration === undefined || success === undefined) {
+    if (!duration || !startTime || !success) {
       return errorResponse(res, 400, 'Missing required fields', {
-        field: 'date, routineName, duration, success',
-        message: 'Date, routine name, duration, and success are required fields'
+        field: 'duration, startTime, success',
+        message: 'Duration, start time, and success are required fields'
       });
     }
 
-    // duration 유효성 검사
-    if (duration < 0) {
-      return errorResponse(res, 400, 'Invalid duration', {
-        field: 'duration',
-        message: 'Duration cannot be negative'
+    // success 유효성 검사
+    if (!['P', 'F'].includes(success)) {
+      return errorResponse(res, 400, 'Invalid success value', {
+        field: 'success',
+        message: 'Success must be either P or F'
       });
     }
 
@@ -30,12 +30,12 @@ const createReport = async (req, res) => {
 
     const result = await reportsModel.insertReport(
       userId,
-      date,
-      routineName,
       duration,
+      feedback,
       reason,
-      success,
-      feedback
+      recommendedRoutine,
+      startTime,
+      success
     );
     console.log('[Reports] Report created successfully:', result.insertId);
     

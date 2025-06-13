@@ -1,20 +1,20 @@
 const db = require('../config/database');
 
-const insertReport = async (userId, date, routineName, duration, reason, success, feedback) => {
+const insertReport = async (userId, duration, feedback, reason, recommendedRoutine, startTime, success) => {
   const query = `
     INSERT INTO reports (
-      user_id, date, routine_name, duration, reason, success, feedback
+      user_id, duration, feedback, reason, recommended_routine, start_time, success
     ) VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
   const [result] = await db.execute(query, [
     userId,
-    date,
-    routineName,
     duration,
+    feedback,
     reason,
-    success,
-    feedback
+    recommendedRoutine,
+    startTime,
+    success
   ]);
 
   return result;
@@ -25,16 +25,16 @@ const getReports = async (userId) => {
     SELECT 
       id,
       user_id,
-      date,
-      routine_name,
       duration,
-      reason,
-      success,
       feedback,
+      reason,
+      recommended_routine,
+      start_time,
+      success,
       created_at
     FROM reports 
     WHERE user_id = ?
-    ORDER BY date DESC, created_at DESC
+    ORDER BY created_at DESC
   `;
   
   const [rows] = await db.execute(query, [userId]);

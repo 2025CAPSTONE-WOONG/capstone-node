@@ -19,30 +19,29 @@ const reportsService = require('./reports.service');
  *           schema:
  *             type: object
  *             required:
- *               - date
- *               - routineName
  *               - duration
+ *               - startTime
  *               - success
  *             properties:
- *               date:
- *                 type: string
- *                 format: date
- *                 description: Date of the routine
- *               routineName:
- *                 type: string
- *                 description: Name of the routine
  *               duration:
- *                 type: integer
- *                 description: Duration of the routine in minutes
- *               reason:
  *                 type: string
- *                 description: Reason for success/failure (optional)
- *               success:
- *                 type: boolean
- *                 description: Whether the routine was completed successfully
+ *                 description: Duration of the routine (e.g., "30분")
  *               feedback:
  *                 type: string
- *                 description: Additional feedback about the routine (optional)
+ *                 description: Feedback about the routine
+ *               reason:
+ *                 type: string
+ *                 description: Reason for success/failure
+ *               recommendedRoutine:
+ *                 type: string
+ *                 description: Recommended routine name
+ *               startTime:
+ *                 type: string
+ *                 description: Start time of the routine (e.g., "오전 7시")
+ *               success:
+ *                 type: string
+ *                 enum: [P, F]
+ *                 description: Whether the routine was completed successfully (P) or failed (F)
  *     responses:
  *       201:
  *         description: Report created successfully
@@ -102,18 +101,17 @@ router.post('/', auth, reportsService.createReport);
  *                             type: integer
  *                           user_id:
  *                             type: integer
- *                           date:
- *                             type: string
- *                             format: date
- *                           routine_name:
- *                             type: string
  *                           duration:
- *                             type: integer
+ *                             type: string
+ *                           feedback:
+ *                             type: string
  *                           reason:
  *                             type: string
+ *                           recommended_routine:
+ *                             type: string
+ *                           start_time:
+ *                             type: string
  *                           success:
- *                             type: boolean
- *                           feedback:
  *                             type: string
  *                           created_at:
  *                             type: string
