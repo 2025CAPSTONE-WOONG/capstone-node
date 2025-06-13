@@ -10,16 +10,8 @@ const createReport = async (req, res) => {
     const userId = req.user.userId;
     const { duration, feedback, reason, recommendedRoutine, startTime, success } = req.body;
 
-    // 필수 필드 검증
-    if (!duration || !startTime || !success) {
-      return errorResponse(res, 400, 'Missing required fields', {
-        field: 'duration, startTime, success',
-        message: 'Duration, start time, and success are required fields'
-      });
-    }
-
-    // success 유효성 검사
-    if (!['P', 'F'].includes(success)) {
+    // success 값이 있는 경우에만 유효성 검사
+    if (success && !['P', 'F'].includes(success)) {
       return errorResponse(res, 400, 'Invalid success value', {
         field: 'success',
         message: 'Success must be either P or F'
@@ -30,12 +22,12 @@ const createReport = async (req, res) => {
 
     const result = await reportsModel.insertReport(
       userId,
-      duration,
-      feedback,
-      reason,
-      recommendedRoutine,
-      startTime,
-      success
+      duration || null,
+      feedback || null,
+      reason || null,
+      recommendedRoutine || null,
+      startTime || null,
+      success || null
     );
     console.log('[Reports] Report created successfully:', result.insertId);
     

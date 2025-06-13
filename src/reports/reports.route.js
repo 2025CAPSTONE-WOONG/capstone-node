@@ -18,10 +18,6 @@ const reportsService = require('./reports.service');
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - duration
- *               - startTime
- *               - success
  *             properties:
  *               duration:
  *                 type: string
@@ -103,16 +99,22 @@ router.post('/', auth, reportsService.createReport);
  *                             type: integer
  *                           duration:
  *                             type: string
+ *                             nullable: true
  *                           feedback:
  *                             type: string
+ *                             nullable: true
  *                           reason:
  *                             type: string
+ *                             nullable: true
  *                           recommended_routine:
  *                             type: string
+ *                             nullable: true
  *                           start_time:
  *                             type: string
+ *                             nullable: true
  *                           success:
  *                             type: string
+ *                             nullable: true
  *                           created_at:
  *                             type: string
  *                             format: date-time
